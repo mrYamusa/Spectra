@@ -10,6 +10,10 @@
   It can update your <code>CHANGELOG.md</code> and (when needed) your <code>README.md</code>.
 </p>
 
+<p align="center">
+  <a href="docs/releasing.md">Maintainers: Release Guide</a>
+</p>
+
 ---
 
 ## Start Here (Non-Technical)
@@ -29,7 +33,7 @@ If you only do one thing, do this flow in order:
 
 Yes, users can download directly from GitHub. You do **not** need Cloudinary.
 
-### For your users
+### For users
 
 1. Go to your repo page.
 2. Click **Releases** on the right side.
@@ -37,22 +41,7 @@ Yes, users can download directly from GitHub. You do **not** need Cloudinary.
 4. Under **Assets**, download `spectra-windows-amd64.exe` (or whichever file you publish).
 5. Rename it to `spectra.exe` if needed.
 
-### For you (publisher)
-
-1. Build the binary:
-
-```bash
-go build -o spectra-windows-amd64.exe .
-```
-
-2. Create a release and upload the `.exe`:
-
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-Then on GitHub: **Releases → Draft a new release → Choose tag → Upload binary asset → Publish**.
+If you are a project maintainer and want release/publishing steps, see `docs/releasing.md`.
 
 ---
 
