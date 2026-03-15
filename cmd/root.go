@@ -9,9 +9,9 @@ import (
 var cfgPath string
 
 var rootCmd = &cobra.Command{
-	Use:   "glonag",
+	Use:   "spectra",
 	Short: "Track git changes and generate changelog/README updates",
-	Long:  "glonag is a Git-aware CLI scaffold for changelog generation and README updates with local or API LLM backends.",
+	Long:  "spectra is a Git-aware CLI scaffold for changelog generation and README updates with local or API LLM backends.",
 }
 
 func Execute() error {
@@ -19,9 +19,9 @@ func Execute() error {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&cfgPath, "config", ".glonag.yaml", "Path to config file")
+	rootCmd.PersistentFlags().StringVar(&cfgPath, "config", ".spectra.yaml", "Path to config file")
 	rootCmd.SilenceUsage = true
-	rootCmd.SetErrPrefix("glonag: ")
+	rootCmd.SetErrPrefix("spectra: ")
 
 	rootCmd.AddCommand(newInitCmd())
 	rootCmd.AddCommand(newTrackCmd())

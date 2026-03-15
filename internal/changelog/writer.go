@@ -55,8 +55,9 @@ func (writer *FileWriter) AppendCommitEntries(commitEntries []CommitEntry) (Writ
 }
 
 func buildUpdatedChangelogContent(existingContent string, entriesGroupedByDate map[string][]CommitEntry) string {
-	var outputBuilder strings.Builder
-	outputBuilder.WriteString(strings.TrimRight(existingContent, "\n"))
+	// Start from the existing content with trailing newlines stripped.
+	// We re-add exactly one trailing newline at the very end.
+	result := strings.TrimRight(existingContent, "\n")
 
 	sortedDates := make([]string, 0, len(entriesGroupedByDate))
 	for dateLabel := range entriesGroupedByDate {
@@ -65,17 +66,46 @@ func buildUpdatedChangelogContent(existingContent string, entriesGroupedByDate m
 	sort.Strings(sortedDates)
 
 	for _, dateLabel := range sortedDates {
-		outputBuilder.WriteString("\n\n## ")
-		outputBuilder.WriteString(dateLabel)
-		outputBuilder.WriteString("\n")
-
+		newLines := ""
 		for _, commitEntry := range entriesGroupedByDate[dateLabel] {
-			outputBuilder.WriteString(formatEntryLine(commitEntry))
+			newLines += formatEntryLine(commitEntry)
+		}
+
+		headingLine := "## " + dateLabel + "\n"
+		sectionStart := strings.Index(result, headingLine)
+
+		if sectionStart != -1 {
+			// This date section already exists in the file.
+			// Find where its body ends (just before the next section heading or EOF)
+			// and inject the new entries there instead of creating a duplicate heading.
+			sectionBodyStart := sectionStart + len(headingLine)
+			afterBody := result[sectionBodyStart:]
+			nextSectionRel := strings.Index(afterBody, "\n## ")
+
+			var insertAt int
+			if nextSectionRel == -1 {
+				// Section body runs to end of file
+				insertAt = len(result)
+			} else {
+				// +1 to skip past the \n that precedes "## <next-date>"
+				insertAt = sectionBodyStart + nextSectionRel + 1
+			}
+
+			prefix := result[:insertAt]
+			suffix := result[insertAt:]
+			// Guard: make sure there is a newline separating the existing last
+			// entry from the one we are about to add.
+			if !strings.HasSuffix(prefix, "\n") {
+				prefix += "\n"
+			}
+			result = prefix + newLines + suffix
+		} else {
+			// Date section does not exist yet — append a brand-new section.
+			result += "\n\n## " + dateLabel + "\n" + newLines
 		}
 	}
 
-	outputBuilder.WriteString("\n")
-	return outputBuilder.String()
+	return strings.TrimRight(result, "\n") + "\n"
 }
 
 func (writer *FileWriter) readOrInitializeFile() (string, error) {
@@ -119,9 +149,11 @@ func formatEntryLine(commitEntry CommitEntry) string {
 }
 
 func formatCommitHashMarker(fullHash string) string {
-	return fmt.Sprintf("<!-- glonag:commit:%s -->", fullHash)
+	return fmt.Sprintf("<!-- spectra:commit:%s -->", fullHash)
 }
 
 func isCommitAlreadyLogged(changelogContent string, commitHash string) bool {
-	return strings.Contains(changelogContent, formatCommitHashMarker(commitHash))
+	currentMarker := formatCommitHashMarker(commitHash)
+	legacyMarker := fmt.Sprintf("<!-- glonag:commit:%s -->", commitHash)
+	return strings.Contains(changelogContent, currentMarker) || strings.Contains(changelogContent, legacyMarker)
 }

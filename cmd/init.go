@@ -17,7 +17,7 @@ func newInitCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "init",
-		Short: "Initialize glonag config and git hook",
+		Short: "Initialize spectra config and git hook",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			repo, err := git.NewClientFromWD()
 			if err != nil {
@@ -39,8 +39,8 @@ func newInitCmd() *cobra.Command {
 
 			hookPath := filepath.Join(repo.RootPath, ".git", "hooks", "post-commit")
 			hookBody := "#!/usr/bin/env sh\n" +
-				"command -v glonag >/dev/null 2>&1 || exit 0\n" +
-				"glonag track --commit HEAD\n"
+				"command -v spectra >/dev/null 2>&1 || exit 0\n" +
+				"spectra track --commit HEAD\n"
 
 			if _, statErr := os.Stat(hookPath); statErr == nil && !force {
 				fmt.Printf("hook already exists at %s (use --force to overwrite)\n", hookPath)

@@ -24,7 +24,7 @@ func Default() Config {
 		LocalBaseURL:          "http://localhost:11434/v1",
 		APIBaseURL:            "https://api.openai.com/v1",
 		Model:                 "llama3.1",
-		APIKeyEnv:             "GLONAG_API_KEY",
+		APIKeyEnv:             "SPECTRA_API_KEY",
 		ReadmeLevel:           "medium",
 		RequestTimeoutSeconds: 30,
 	}
@@ -80,7 +80,7 @@ func (c Config) WriteIfMissing(path string, force bool) error {
 		return nil
 	}
 
-	content := fmt.Sprintf("# glonag configuration\nmode: %s\nlocal_base_url: %s\napi_base_url: %s\nmodel: %s\napi_key_env: %s\nreadme_threshold: %s\nrequest_timeout_seconds: %d\n",
+	content := fmt.Sprintf("# spectra configuration\nmode: %s\nlocal_base_url: %s\napi_base_url: %s\nmodel: %s\napi_key_env: %s\nreadme_threshold: %s\nrequest_timeout_seconds: %d\n",
 		c.Mode,
 		c.LocalBaseURL,
 		c.APIBaseURL,

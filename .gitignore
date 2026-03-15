@@ -1,0 +1,35 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+spectra
+spectra.exe
+
+# Go build/test artifacts
+*.test
+*.out
+coverage.out
+cover.out
+*.coverprofile
+
+# Dependency/vendor directories (optional)
+vendor/
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local Spectra config (machine-specific)
+.spectra.yaml
+.glonag.yaml
+
+# Local scratch/test files
+rest.html

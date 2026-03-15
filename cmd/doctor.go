@@ -34,19 +34,21 @@ func newDoctorCmd() *cobra.Command {
 			}
 			printKV("repo", repo.RootPath)
 
-			if _, err := os.Stat(cfgPath); err != nil {
+			resolvedConfigPath := resolveConfigPathForRead(cfgPath)
+			if _, err := os.Stat(resolvedConfigPath); err != nil {
 				if os.IsNotExist(err) {
-					printKV("config", "missing (run: glonag init)")
+					printKV("config", "missing (run: spectra init)")
 					return nil
 				}
 				return err
 			}
 
-			cfg, err := config.Load(cfgPath)
+			cfg, err := config.Load(resolvedConfigPath)
 			if err != nil {
 				return err
 			}
 			printKV("config", "ok")
+			printKV("config_path", resolvedConfigPath)
 			printKV("mode", cfg.Mode)
 
 			if cfg.Mode == "api" {

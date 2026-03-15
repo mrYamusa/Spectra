@@ -27,7 +27,8 @@ func newTrackCmd() *cobra.Command {
 				return errors.New("use either --commit or --range, not both")
 			}
 
-			cfg, err := config.Load(cfgPath)
+			resolvedConfigPath := resolveConfigPathForRead(cfgPath)
+			cfg, err := config.Load(resolvedConfigPath)
 			if err != nil {
 				return err
 			}
