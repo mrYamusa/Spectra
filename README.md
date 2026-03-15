@@ -16,7 +16,7 @@
 
 ---
 
-## Start Here (Non-Technical)
+## Start Here
 
 If you only do one thing, do this flow in order:
 
@@ -31,15 +31,12 @@ If you only do one thing, do this flow in order:
 
 ## Windows: Download EXE (No Build Needed)
 
-Yes, users can download directly from GitHub. You do **not** need Cloudinary.
-
 ### For users
 
-1. Go to your repo page.
+1. On this page.
 2. Click **Releases** on the right side.
 3. Open the latest release.
-4. Under **Assets**, download `spectra-windows-amd64.exe` (or whichever file you publish).
-5. Rename it to `spectra.exe` if needed.
+4. Under **Assets**, download `spectra.exe`.
 
 If you are a project maintainer and want release/publishing steps, see `docs/releasing.md`.
 
@@ -54,7 +51,7 @@ If you are a project maintainer and want release/publishing steps, see `docs/rel
 
 ---
 
-## First-Time Setup (Mistake-Proof)
+## First-Time Setup
 
 ### Step 1 — Open terminal in your project
 
@@ -123,7 +120,7 @@ You want to see:
 
 ---
 
-## Daily Use (Simple)
+## Daily Use
 
 After each commit, you can run:
 
