@@ -13,3 +13,5 @@ func main() {
 		os.Exit(1)
 	}
 }
+
+Test note for range validation
