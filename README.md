@@ -1,190 +1,215 @@
 <p align="center">
-	<img src="spec.png" alt="SPECTRA — Document Those Changes" width="760" />
+  <img src="assets/specs.webp" alt="SPECTRA — Document Those Changes" width="780" />
 </p>
 
 <h1 align="center">Spectra</h1>
 <p align="center"><strong>Document those changes.</strong></p>
 
 <p align="center">
-	A beginner-friendly CLI that watches your git commits, writes changelogs,
-	and updates your README when changes are important enough.
+  Spectra watches your git commits and writes useful docs for you.
+  It can update your <code>CHANGELOG.md</code> and (when needed) your <code>README.md</code>.
 </p>
 
 ---
 
-## Why Spectra?
+## Start Here (Non-Technical)
 
-You make commits. Spectra turns those commits into useful project docs.
+If you only do one thing, do this flow in order:
 
-- ✅ Auto-writes `CHANGELOG.md` entries
-- ✅ Can auto-update `README.md` for significant changes
-- ✅ Works with local LLMs (like Ollama) or API-based models
-- ✅ Safe defaults and readable output for beginners
+1. Download `spectra.exe` from GitHub Releases.
+2. Put `spectra.exe` in a folder you can find (for example `C:\Tools\Spectra`).
+3. Open your project folder in terminal.
+4. Run `spectra init` and answer the setup questions.
+5. Run `spectra doctor` to confirm setup.
+6. Run `spectra track --commit HEAD` after a commit.
 
 ---
 
-## 5-Minute Beginner Tutorial
+## Windows: Download EXE (No Build Needed)
 
-### 1) Put `spectra` on your PATH
+Yes, users can download directly from GitHub. You do **not** need Cloudinary.
 
-If you already installed it to `~/go/bin`, you can skip this.
+### For your users
+
+1. Go to your repo page.
+2. Click **Releases** on the right side.
+3. Open the latest release.
+4. Under **Assets**, download `spectra-windows-amd64.exe` (or whichever file you publish).
+5. Rename it to `spectra.exe` if needed.
+
+### For you (publisher)
+
+1. Build the binary:
 
 ```bash
-spectra --help
+go build -o spectra-windows-amd64.exe .
 ```
 
-If that command works, Spectra is installed correctly.
-
-### 2) Go into your git project
+2. Create a release and upload the `.exe`:
 
 ```bash
-cd /path/to/your/project
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Then on GitHub: **Releases → Draft a new release → Choose tag → Upload binary asset → Publish**.
+
+---
+
+## What Spectra Does
+
+- `track`: add commit summaries to `CHANGELOG.md`
+- `untrack`: remove a previously tracked commit from `CHANGELOG.md`
+- `readme`: decide if commit is important enough to update README section
+- `doctor`: show if your setup is healthy
+
+---
+
+## First-Time Setup (Mistake-Proof)
+
+### Step 1 — Open terminal in your project
+
+Your project must already be a git repo.
+
+```bash
 git status
 ```
 
-You should be inside a valid git repository.
-
-### 3) Initialize Spectra once
+If this fails with “not a git repository”, run:
 
 ```bash
-spectra init --force
+git init
 ```
 
-This does two things:
+### Step 2 — Start Spectra wizard
 
-1. Creates `.spectra.yaml` (your config)
-2. Installs a git `post-commit` hook so Spectra can run after each commit
+```bash
+spectra init
+```
 
-### 4) Check health
+The wizard asks beginner-friendly questions and lets you press Enter for defaults.
+
+### Step 3 — Pick a mode
+
+- `local` = use a model running on your own machine
+- `api` = use an online model provider
+
+If you are unsure, use `local` first.
+
+### Step 4 — API mode users only
+
+If you picked `api`, Spectra asks for:
+
+- `api_base_url` (provider endpoint)
+- `api_key_env` (name of your env var, not your secret key)
+- `model` (provider model id)
+
+Example API config values:
+
+```yaml
+mode: api
+api_base_url: https://generativelanguage.googleapis.com/v1beta/openai
+api_key_env: SPECTRA_API_KEY
+model: gemini-2.0-flash
+```
+
+Set your real key in terminal:
+
+```bash
+export SPECTRA_API_KEY="your-real-api-key"
+```
+
+### Step 5 — Verify everything
 
 ```bash
 spectra doctor
 ```
 
-You should see checks for git, repo, config, and mode.
+You want to see:
 
-### 5) Generate changelog entries
+- `git: ok`
+- `config: ok`
+- `mode: ...`
+- `api_key: present (...)` if using API mode
 
-For latest commit:
+---
+
+## Daily Use (Simple)
+
+After each commit, you can run:
 
 ```bash
 spectra track --commit HEAD
 ```
 
-For a commit range:
+If you tracked a commit by mistake, undo it:
 
 ```bash
-spectra track --range main..HEAD
+spectra untrack --commit HEAD
 ```
 
-Now open `CHANGELOG.md` and you will see your entries.
-
-### 6) Preview README updates (safe mode)
+Preview README update decision (safe):
 
 ```bash
 spectra readme --commit HEAD
 ```
 
-This is a dry run (no file writes).
-
-### 7) Actually update README
+Apply README update:
 
 ```bash
 spectra readme --commit HEAD --auto
 ```
 
-If the commit significance is high enough, Spectra updates the managed section in `README.md`.
+---
+
+## Quick Command Guide
+
+| Command                               | What it means in plain words         |
+| ------------------------------------- | ------------------------------------ |
+| `spectra init`                        | Set up Spectra with guided questions |
+| `spectra doctor`                      | Check if setup is working            |
+| `spectra track --commit HEAD`         | Add the latest commit to changelog   |
+| `spectra track --range main..HEAD`    | Add many commits at once             |
+| `spectra untrack --commit HEAD`       | Remove latest commit from changelog  |
+| `spectra readme --commit HEAD`        | Dry run for README update            |
+| `spectra readme --commit HEAD --auto` | Actually update README section       |
 
 ---
 
-## Core Commands (Plain English)
+## Common Mistakes and Fixes
 
-| Command                               | What it does                               |
-| ------------------------------------- | ------------------------------------------ |
-| `spectra init`                        | Creates config + installs post-commit hook |
-| `spectra doctor`                      | Checks setup and prerequisites             |
-| `spectra track --commit HEAD`         | Adds changelog entry for one commit        |
-| `spectra track --range A..B`          | Adds changelog entries for a range         |
-| `spectra readme --commit HEAD`        | Shows whether README would be updated      |
-| `spectra readme --commit HEAD --auto` | Applies README managed-section update      |
+### “spectra: command not found”
 
----
+- Put `spectra.exe` somewhere on PATH, or run it with full path.
+- Close and reopen terminal.
 
-## How Spectra Decides README Updates
+### “api_key missing”
 
-Spectra scores each commit as:
-
-- `low`
-- `medium`
-- `high`
-
-Your config key `readme_threshold` controls when README updates happen:
-
-- `low` → update for any commit
-- `medium` → update for medium/high commits
-- `high` → update only for high-impact commits
-
----
-
-## Configuration (`.spectra.yaml`)
-
-```yaml
-mode: local
-local_base_url: http://localhost:11434/v1
-api_base_url: https://api.openai.com/v1
-model: llama3.1
-api_key_env: SPECTRA_API_KEY
-readme_threshold: medium
-request_timeout_seconds: 30
-```
-
-### Choose your model mode
-
-- `mode: local` → local model server (e.g. Ollama)
-- `mode: api` → cloud API model (requires env var from `api_key_env`)
-
----
-
-## Typical Daily Workflow
+- `api_key_env` must be the variable name (for example `SPECTRA_API_KEY`)
+- Actual key must be exported in terminal:
 
 ```bash
-# code as usual
-git add .
-git commit -m "feat: add export command"
-
-# post-commit hook can auto-run track
-# optional explicit command:
-spectra track --commit HEAD
-
-# only when needed:
-spectra readme --commit HEAD --auto
+export SPECTRA_API_KEY="your-real-api-key"
 ```
 
----
+### “not a git repository”
 
-## Troubleshooting
+- Run Spectra from inside your project folder.
+- Ensure `.git` exists.
 
-### `spectra: command not found`
+### README did not update
 
-- Ensure binary is in your PATH (for Go installs, usually `~/go/bin`)
-- Restart terminal and run `spectra --help`
-
-### `not a git repository`
-
-- Run Spectra inside a folder that has `.git`
-
-### API mode says key missing
-
-- Export your key using the env var name from `api_key_env`
+- Run with `--auto`.
+- Commit may be below threshold (`readme_threshold`).
 
 ---
 
-## Project Files You’ll See
+## Files Spectra Creates/Uses
 
-- `.spectra.yaml` → Spectra settings
-- `.git/hooks/post-commit` → auto track hook
-- `CHANGELOG.md` → commit history summaries
-- `README.md` → docs + managed “Recent Changes” section
+- `.spectra.yaml` → your Spectra settings
+- `.git/hooks/post-commit` → optional auto-track hook
+- `CHANGELOG.md` → tracked commit summaries
+- `README.md` → docs + Spectra managed update block
 
 ---
 
@@ -198,5 +223,5 @@ The block below is managed by Spectra and can be auto-updated:
 
 _Last updated: 2026-03-15_
 
-- **Initial Spectra scaffold** — README tutorial and CLI workflow docs prepared.
+- **README improved** — Added full beginner guide, Windows `.exe` distribution steps, and safe setup instructions.
 <!-- spectra:readme:end -->

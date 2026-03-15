@@ -25,6 +25,7 @@ func init() {
 
 	rootCmd.AddCommand(newInitCmd())
 	rootCmd.AddCommand(newTrackCmd())
+	rootCmd.AddCommand(newUntrackCmd())
 	rootCmd.AddCommand(newReadmeCmd())
 	rootCmd.AddCommand(newDoctorCmd())
 }

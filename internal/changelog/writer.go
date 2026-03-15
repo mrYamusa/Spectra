@@ -157,3 +157,100 @@ func isCommitAlreadyLogged(changelogContent string, commitHash string) bool {
 	legacyMarker := fmt.Sprintf("<!-- glonag:commit:%s -->", commitHash)
 	return strings.Contains(changelogContent, currentMarker) || strings.Contains(changelogContent, legacyMarker)
 }
+
+// RemoveCommitEntry removes the changelog line that belongs to the given full commit hash.
+// If the date section becomes empty after removal, the section heading is cleaned up too.
+// Returns true if an entry was found and removed, false if nothing matched.
+func (writer *FileWriter) RemoveCommitEntry(fullCommitHash string) (bool, error) {
+	contentBytes, err := os.ReadFile(writer.FilePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	currentMarker := fmt.Sprintf("<!-- spectra:commit:%s -->", fullCommitHash)
+	legacyMarker := fmt.Sprintf("<!-- glonag:commit:%s -->", fullCommitHash)
+
+	lines := strings.Split(string(contentBytes), "\n")
+	found := false
+	filtered := make([]string, 0, len(lines))
+	for _, line := range lines {
+		if strings.Contains(line, currentMarker) || strings.Contains(line, legacyMarker) {
+			found = true
+			continue // drop this entry line
+		}
+		filtered = append(filtered, line)
+	}
+
+	if !found {
+		return false, nil
+	}
+
+	// Clean up any date section headings that are now empty
+	filtered = pruneEmptyDateSections(filtered)
+
+	result := strings.TrimRight(strings.Join(filtered, "\n"), "\n") + "\n"
+	if err := os.WriteFile(writer.FilePath, []byte(result), 0o644); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// pruneEmptyDateSections removes any "## YYYY-MM-DD" heading whose section
+// has no bullet-point entries (lines starting with "- ") before the next heading.
+func pruneEmptyDateSections(lines []string) []string {
+	result := make([]string, 0, len(lines))
+	i := 0
+	for i < len(lines) {
+		if isDateSectionHeading(lines[i]) {
+			// Look ahead: does this section have any entry lines?
+			hasEntries := false
+			j := i + 1
+			for j < len(lines) {
+				if isDateSectionHeading(lines[j]) {
+					break
+				}
+				if strings.HasPrefix(strings.TrimSpace(lines[j]), "- ") {
+					hasEntries = true
+					break
+				}
+				j++
+			}
+			if !hasEntries {
+				// Skip the heading and trailing blank lines
+				i++
+				for i < len(lines) && strings.TrimSpace(lines[i]) == "" {
+					i++
+				}
+				continue
+			}
+		}
+		result = append(result, lines[i])
+		i++
+	}
+	return result
+}
+
+// isDateSectionHeading returns true when a line looks exactly like "## YYYY-MM-DD"
+func isDateSectionHeading(line string) bool {
+	trimmed := strings.TrimSpace(line)
+	if !strings.HasPrefix(trimmed, "## ") {
+		return false
+	}
+	rest := strings.TrimPrefix(trimmed, "## ")
+	if len(rest) != 10 {
+		return false
+	}
+	for i, ch := range rest {
+		if i == 4 || i == 7 {
+			if ch != '-' {
+				return false
+			}
+		} else if ch < '0' || ch > '9' {
+			return false
+		}
+	}
+	return true
+}
