@@ -90,13 +90,13 @@ If you picked `api`, Spectra asks for:
 - `api_key_env` (name of your env var, not your secret key)
 - `model` (provider model id)
 
-Example API config values:
+Highly reccomended example API config values:
 
 ```yaml
 mode: api
 api_base_url: https://generativelanguage.googleapis.com/v1beta/openai
 api_key_env: SPECTRA_API_KEY
-model: gemini-2.0-flash
+model: gemini-2.5-flash
 ```
 
 Set your real key in terminal:
