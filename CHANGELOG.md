@@ -11,3 +11,7 @@
 - updated readme (changed 7 files). (`e528a98`) by Local Tester — files: 7, +455/-104 <!-- spectra:commit:e528a9864585777d23824d11fd6167347640b3e2 -->
 - docs: split maintainer release guide from README (changed 3 files). (`c8394c3`) by Local Tester — files: 3, +63/-17 <!-- spectra:commit:c8394c3452d56597b3328b5c90b3695901bb7388 -->
 - Updated README (changed 1 files). (`47211f4`) by Local Tester — files: 1, +5/-8 <!-- spectra:commit:47211f4309ff488b1719ec4fec950136e6a00b4a -->
+
+## 2026-03-16
+- More descriptive summary of code changes across 2 files (+8/-0), with the largest edits in cmd/track.go (+5/-0) and internal/changelog/summary_builder.go (+3/-0), improving cli behavior and developer workflow. (`72a2bdc`) by Local Tester — files: 2, +8/-0 <!-- spectra:commit:72a2bdcb6b13917cf1492c9eb293c34fcdf73981 -->
+- More descriptive summary of code changes across 5 files (+158/-3), with the largest edits in internal/changelog/summary_builder.go (+102/-1) and internal/llm/client.go (+34/-2), improving cli behavior and developer workflow. (`accded5`) by Local Tester — files: 5, +158/-3 <!-- spectra:commit:accded5c5eb9a7ab21b14befcce821a4157cae92 -->

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -74,7 +75,7 @@ func (generator *OpenAICompatibleGenerator) GenerateCommitSummaryText(ctx contex
 		Messages: []chatMessage{
 			{
 				Role:    "system",
-				Content: "You write concise changelog summaries for software commits. Return exactly one sentence with plain English and no markdown.",
+				Content: "You write clear, descriptive changelog summaries for software commits. Return exactly one sentence in plain English and no markdown. Mention the main area(s) changed and the practical outcome for users or maintainers.",
 			},
 			{
 				Role:    "user",
@@ -132,14 +133,45 @@ func buildCommitPrompt(commitSummary git.CommitSummary) string {
 		joinedFiles = strings.Join(commitSummary.ChangedFiles, ", ")
 	}
 
-	return fmt.Sprintf("Commit subject: %s\nAuthor: %s\nFiles changed: %d\nInsertions: %d\nDeletions: %d\nChanged files: %s\nWrite one concise changelog sentence describing what changed and why it matters to users.",
+	fileChangesOverview := buildTopFileChangesOverview(commitSummary.FileChanges, 8)
+
+	return fmt.Sprintf("Commit subject: %s\nAuthor: %s\nFiles changed: %d\nInsertions: %d\nDeletions: %d\nChanged files: %s\nTop file changes by churn:\n%s\nWrite exactly one sentence (about 20-35 words) describing what was modified and why it matters. Prefer concrete nouns (commands, config, docs, APIs, hooks, validation, error messages) over generic wording.",
 		commitSummary.Subject,
 		commitSummary.Author,
 		commitSummary.FilesChanged,
 		commitSummary.Insertions,
 		commitSummary.Deletions,
 		joinedFiles,
+		fileChangesOverview,
 	)
+}
+
+func buildTopFileChangesOverview(fileChanges []git.FileChange, limit int) string {
+	if len(fileChanges) == 0 {
+		return "- none"
+	}
+
+	ordered := make([]git.FileChange, len(fileChanges))
+	copy(ordered, fileChanges)
+	sort.SliceStable(ordered, func(left, right int) bool {
+		leftChurn := ordered[left].Insertions + ordered[left].Deletions
+		rightChurn := ordered[right].Insertions + ordered[right].Deletions
+		if leftChurn == rightChurn {
+			return ordered[left].Path < ordered[right].Path
+		}
+		return leftChurn > rightChurn
+	})
+
+	if limit > len(ordered) {
+		limit = len(ordered)
+	}
+
+	lines := make([]string, 0, limit)
+	for _, fileChange := range ordered[:limit] {
+		lines = append(lines, fmt.Sprintf("- %s (+%d/-%d)", fileChange.Path, fileChange.Insertions, fileChange.Deletions))
+	}
+
+	return strings.Join(lines, "\n")
 }
 
 func sanitizeGeneratedSummary(generatedText string) string {

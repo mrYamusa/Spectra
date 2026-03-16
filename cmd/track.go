@@ -86,9 +86,14 @@ func newTrackCmd() *cobra.Command {
 				printKV("summary_source", "deterministic fallback")
 				if llmSetupError != nil {
 					printKV("llm_notice", llmSetupError.Error())
+				} else if generationStats.FirstLLMError != "" {
+					printKV("llm_notice", generationStats.FirstLLMError)
 				}
 			} else {
 				printKV("summary_source", "mixed (llm + fallback)")
+				if generationStats.FirstLLMError != "" {
+					printKV("llm_notice", generationStats.FirstLLMError)
+				}
 			}
 			printKV("llm_summaries", fmt.Sprintf("%d", generationStats.LLMSuccessCount))
 			printKV("fallback_summaries", fmt.Sprintf("%d", generationStats.FallbackUsedCount))

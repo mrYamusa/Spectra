@@ -20,6 +20,13 @@ type CommitSummary struct {
 	Insertions   int
 	Deletions    int
 	ChangedFiles []string
+	FileChanges  []FileChange
+}
+
+type FileChange struct {
+	Path       string
+	Insertions int
+	Deletions  int
 }
 
 type Client struct {
@@ -128,6 +135,13 @@ func parseSummary(meta, stats string) (CommitSummary, error) {
 		}
 		summary.Insertions += ins
 		summary.Deletions += del
+		if filePath != "" {
+			summary.FileChanges = append(summary.FileChanges, FileChange{
+				Path:       filePath,
+				Insertions: ins,
+				Deletions:  del,
+			})
+		}
 	}
 
 	return summary, nil
